@@ -123,7 +123,7 @@ def zip_directory(directory, compress=True, exclude=(".DS_Store", "__MACOSX"), p
     zip_file = directory.with_suffix(".zip")
     compression = ZIP_DEFLATED if compress else ZIP_STORED
     with ZipFile(zip_file, "w", compression) as f:
-        for file in TQDM(files_to_zip, desc=f"Zipping {directory} to {zip_file}...", unit="file", disable=not progress):
+        for file in TQDM(files_to_zip, mininterval=300.0, desc=f"Zipping {directory} to {zip_file}...", unit="file", disable=not progress):
             f.write(file, file.relative_to(directory))
 
     return zip_file  # return path to zip file
@@ -185,7 +185,7 @@ def unzip_file(file, path=None, exclude=(".DS_Store", "__MACOSX"), exist_ok=Fals
             LOGGER.warning(f"WARNING ⚠️ Skipping {file} unzip as destination directory {path} is not empty.")
             return path
 
-        for f in TQDM(files, desc=f"Unzipping {file} to {Path(path).resolve()}...", unit="file", disable=not progress):
+        for f in TQDM(files, mininterval=300.0, desc=f"Unzipping {file} to {Path(path).resolve()}...", unit="file", disable=not progress):
             # Ensure the file is within the extract_path to avoid path traversal security vulnerability
             if ".." in Path(f).parts:
                 LOGGER.warning(f"Potentially insecure file path: {f}, skipping extraction.")
@@ -342,6 +342,7 @@ def safe_download(
                     else:
                         with request.urlopen(url) as response, TQDM(
                             total=int(response.getheader("Content-Length", 0)),
+                            mininterval=300.0,
                             desc=desc,
                             disable=not progress,
                             unit="B",

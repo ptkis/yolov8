@@ -96,7 +96,7 @@ class YOLODataset(BaseDataset):
                     repeat(ndim),
                 ),
             )
-            pbar = TQDM(results, desc=desc, total=total)
+            pbar = TQDM(results, mininterval=300.0, desc=desc, total=total)
             for im_file, lb, shape, segments, keypoint, nm_f, nf_f, ne_f, nc_f, msg in pbar:
                 nm += nm_f
                 nf += nf_f
@@ -145,7 +145,7 @@ class YOLODataset(BaseDataset):
         nf, nm, ne, nc, n = cache.pop("results")  # found, missing, empty, corrupt, total
         if exists and LOCAL_RANK in {-1, 0}:
             d = f"Scanning {cache_path}... {nf} images, {nm + ne} backgrounds, {nc} corrupt"
-            TQDM(None, desc=self.prefix + d, total=n, initial=n)  # display results
+            TQDM(None, mininterval=300.0, desc=self.prefix + d, total=n, initial=n)  # display results
             if cache["msgs"]:
                 LOGGER.info("\n".join(cache["msgs"]))  # display warnings
 
@@ -303,7 +303,7 @@ class GroundingDataset(YOLODataset):
         img_to_anns = defaultdict(list)
         for ann in annotations["annotations"]:
             img_to_anns[ann["image_id"]].append(ann)
-        for img_id, anns in TQDM(img_to_anns.items(), desc=f"Reading annotations {self.json_file}"):
+        for img_id, anns in TQDM(img_to_anns.items(), mininterval=300.0, desc=f"Reading annotations {self.json_file}"):
             img = images[f"{img_id:d}"]
             h, w, f = img["height"], img["width"], img["file_name"]
             im_file = Path(self.img_path) / f
@@ -491,7 +491,7 @@ class ClassificationDataset:
             nf, nc, n, samples = cache.pop("results")  # found, missing, empty, corrupt, total
             if LOCAL_RANK in {-1, 0}:
                 d = f"{desc} {nf} images, {nc} corrupt"
-                TQDM(None, desc=d, total=n, initial=n)
+                TQDM(None, mininterval=300.0, desc=d, total=n, initial=n)
                 if cache["msgs"]:
                     LOGGER.info("\n".join(cache["msgs"]))  # display warnings
             return samples
@@ -501,7 +501,7 @@ class ClassificationDataset:
             nf, nc, msgs, samples, x = 0, 0, [], [], {}
             with ThreadPool(NUM_THREADS) as pool:
                 results = pool.imap(func=verify_image, iterable=zip(self.samples, repeat(self.prefix)))
-                pbar = TQDM(results, desc=desc, total=len(self.samples))
+                pbar = TQDM(results, mininterval=300.0, desc=desc, total=len(self.samples))
                 for sample, nf_f, nc_f, msg in pbar:
                     if nf_f:
                         samples.append(sample)

@@ -99,7 +99,7 @@ def requests_with_progress(method, url, **kwargs):
     response = requests.request(method, url, stream=True, **kwargs)
     total = int(response.headers.get("content-length", 0) if isinstance(progress, bool) else progress)  # total size
     try:
-        pbar = TQDM(total=total, unit="B", unit_scale=True, unit_divisor=1024)
+        pbar = TQDM(total=total, mininterval=300.0, unit="B", unit_scale=True, unit_divisor=1024)
         for data in response.iter_content(chunk_size=1024):
             pbar.update(len(data))
         pbar.close()

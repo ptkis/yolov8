@@ -221,7 +221,7 @@ def split_images_and_labels(data_root, save_dir, split="train", crop_sizes=(1024
     lb_dir.mkdir(parents=True, exist_ok=True)
 
     annos = load_yolo_dota(data_root, split=split)
-    for anno in tqdm(annos, total=len(annos), desc=split):
+    for anno in tqdm(annos, mininterval=300.0, total=len(annos), desc=split):
         windows = get_windows(anno["ori_size"], crop_sizes, gaps)
         window_objs = get_window_obj(anno, windows)
         crop_and_save(anno, windows, window_objs, str(im_dir), str(lb_dir))
@@ -281,7 +281,7 @@ def split_test(data_root, save_dir, crop_size=1024, gap=200, rates=(1.0,)):
     im_dir = Path(data_root) / "images" / "test"
     assert im_dir.exists(), f"Can't find {im_dir}, please check your data root."
     im_files = glob(str(im_dir / "*"))
-    for im_file in tqdm(im_files, total=len(im_files), desc="test"):
+    for im_file in tqdm(im_files, mininterval=300.0, total=len(im_files), desc="test"):
         w, h = exif_size(Image.open(im_file))
         windows = get_windows((h, w), crop_sizes=crop_sizes, gaps=gaps)
         im = cv2.imread(im_file)

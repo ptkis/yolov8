@@ -478,7 +478,7 @@ class ProfileModels:
 
         # Timed runs
         run_times = []
-        for _ in TQDM(range(num_runs), desc=engine_file):
+        for _ in TQDM(range(num_runs), mininterval=300.0, desc=engine_file):
             results = model(input_data, imgsz=self.imgsz, verbose=False)
             run_times.append(results[0].speed["inference"])  # Convert to milliseconds
 
@@ -532,7 +532,7 @@ class ProfileModels:
 
         # Timed runs
         run_times = []
-        for _ in TQDM(range(num_runs), desc=onnx_file):
+        for _ in TQDM(range(num_runs), mininterval=300.0, desc=onnx_file):
             start_time = time.time()
             sess.run([output_name], {input_name: input_data})
             run_times.append((time.time() - start_time) * 1000)  # Convert to milliseconds

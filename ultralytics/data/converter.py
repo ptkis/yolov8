@@ -278,7 +278,7 @@ def convert_coco(
 
         image_txt = []
         # Write labels file
-        for img_id, anns in TQDM(imgToAnns.items(), desc=f"Annotations {json_file}"):
+        for img_id, anns in TQDM(imgToAnns.items(), mininterval=300.0, desc=f"Annotations {json_file}"):
             img = images[f"{img_id:d}"]
             h, w = img["height"], img["width"]
             f = str(Path(img["coco_url"]).relative_to("http://images.cocodataset.org")) if lvis else img["file_name"]
@@ -503,7 +503,7 @@ def convert_dota_to_yolo_obb(dota_root_path: str):
         save_dir.mkdir(parents=True, exist_ok=True)
 
         image_paths = list(image_dir.iterdir())
-        for image_path in TQDM(image_paths, desc=f"Processing {phase} images"):
+        for image_path in TQDM(image_paths, mininterval=300.0, desc=f"Processing {phase} images"):
             if image_path.suffix != ".png":
                 continue
             image_name_without_ext = image_path.stem
@@ -614,7 +614,7 @@ def yolo_bbox2segment(im_dir, save_dir=None, sam_model="sam_b.pt", device=None):
 
     LOGGER.info("Detection labels detected, generating segment labels by SAM model!")
     sam_model = SAM(sam_model)
-    for label in TQDM(dataset.labels, total=len(dataset.labels), desc="Generating segment labels"):
+    for label in TQDM(dataset.labels, mininterval=300.0, total=len(dataset.labels), desc="Generating segment labels"):
         h, w = label["shape"]
         boxes = label["bboxes"]
         if len(boxes) == 0:  # skip empty labels
@@ -692,7 +692,7 @@ def create_synthetic_coco_dataset():
 
                 # Submit all tasks
                 futures = [executor.submit(create_synthetic_image, image_file) for image_file in image_files]
-                for _ in TQDM(as_completed(futures), total=len(futures), desc=f"Generating images for {subset}"):
+                for _ in TQDM(as_completed(futures), mininterval=300.0, total=len(futures), desc=f"Generating images for {subset}"):
                     pass  # The actual work is done in the background
             else:
                 print(f"Warning: Labels file {label_list_file} does not exist. Skipping image creation for {subset}.")

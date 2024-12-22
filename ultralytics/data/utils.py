@@ -540,7 +540,7 @@ class HUBDatasetStats:
                 x = np.array(
                     [
                         np.bincount(label["cls"].astype(int).flatten(), minlength=self.data["nc"])
-                        for label in TQDM(dataset.labels, total=len(dataset), desc="Statistics")
+                        for label in TQDM(dataset.labels, mininterval=300.0, total=len(dataset), desc="Statistics")
                     ]
                 )  # shape(128x80)
                 self.stats[split] = {
@@ -574,7 +574,7 @@ class HUBDatasetStats:
                 continue
             dataset = YOLODataset(img_path=self.data[split], data=self.data)
             with ThreadPool(NUM_THREADS) as pool:
-                for _ in TQDM(pool.imap(self._hub_ops, dataset.im_files), total=len(dataset), desc=f"{split} images"):
+                for _ in TQDM(pool.imap(self._hub_ops, dataset.im_files), mininterval=300.0, total=len(dataset), desc=f"{split} images"):
                     pass
         LOGGER.info(f"Done. All images saved to {self.im_dir}")
         return self.im_dir
@@ -645,7 +645,7 @@ def autosplit(path=DATASETS_DIR / "coco8/images", weights=(0.9, 0.1, 0.0), annot
             (path.parent / x).unlink()  # remove existing
 
     LOGGER.info(f"Autosplitting images from {path}" + ", using *.txt labeled images only" * annotated_only)
-    for i, img in TQDM(zip(indices, files), total=n):
+    for i, img in TQDM(zip(indices, files), mininterval=300.0, total=n):
         if not annotated_only or Path(img2label_paths([str(img)])[0]).exists():  # check label
             with open(path.parent / txt[i], "a") as f:
                 f.write(f"./{img.relative_to(path.parent).as_posix()}" + "\n")  # add image to txt file

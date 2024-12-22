@@ -371,7 +371,7 @@ class HUBTrainingSession:
         Returns:
             None
         """
-        with TQDM(total=content_length, unit="B", unit_scale=True, unit_divisor=1024) as pbar:
+        with TQDM(total=content_length, mininterval=300.0, unit="B", unit_scale=True, unit_divisor=1024) as pbar:
             for data in response.iter_content(chunk_size=1024):
                 pbar.update(len(data))
 

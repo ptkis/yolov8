@@ -66,7 +66,7 @@ def prepare_docs_markdown(clone_repos=True):
         print(f"Cloned/Updated {repo} in {local_dir}")
 
     # Add frontmatter
-    for file in tqdm((DOCS / "en").rglob("*.md"), desc="Adding frontmatter"):
+    for file in tqdm((DOCS / "en").rglob("*.md"), mininterval=300.0, desc="Adding frontmatter"):
         update_markdown_files(file)
 
 
@@ -87,7 +87,7 @@ def update_page_title(file_path: Path, new_title: str):
 def update_html_head(script=""):
     """Update the HTML head section of each file."""
     html_files = Path(SITE).rglob("*.html")
-    for html_file in tqdm(html_files, desc="Processing HTML files"):
+    for html_file in tqdm(html_files, mininterval=300.0, desc="Processing HTML files"):
         with html_file.open("r", encoding="utf-8") as file:
             html_content = file.read()
 
@@ -107,7 +107,7 @@ def update_subdir_edit_links(subdir="", docs_url=""):
     if str(subdir[0]) == "/":
         subdir = str(subdir[0])[1:]
     html_files = (SITE / subdir).rglob("*.html")
-    for html_file in tqdm(html_files, desc="Processing subdir files"):
+    for html_file in tqdm(html_files, mininterval=300.0, desc="Processing subdir files"):
         with html_file.open("r", encoding="utf-8") as file:
             soup = BeautifulSoup(file, "html.parser")
 
@@ -171,7 +171,7 @@ def update_docs_html():
 
     # Convert plaintext links to HTML hyperlinks
     files_modified = 0
-    for html_file in tqdm(SITE.rglob("*.html"), desc="Converting plaintext links"):
+    for html_file in tqdm(SITE.rglob("*.html"), mininterval=300.0, desc="Converting plaintext links"):
         with open(html_file, encoding="utf-8") as file:
             content = file.read()
         updated_content = convert_plaintext_links_to_html(content)
@@ -271,7 +271,7 @@ def minify_files(html=True, css=True, js=True):
 
         stats[ext] = {"original": 0, "minified": 0}
         directory = ""  # "stylesheets" if ext == css else "javascript" if ext == "js" else ""
-        for f in tqdm((SITE / directory).rglob(f"*.{ext}"), desc=f"Minifying {ext.upper()}"):
+        for f in tqdm((SITE / directory).rglob(f"*.{ext}"), mininterval=300.0, desc=f"Minifying {ext.upper()}"):
             content = f.read_text(encoding="utf-8")
             minified = minifier(content)
             stats[ext]["original"] += len(content)
